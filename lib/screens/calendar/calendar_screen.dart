@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:todo_list/app/widgets/scrollDateWidget.dart';
+import 'package:todo_list/widgets/scrollDateWidget.dart';
 
 class CalendarScreen extends StatelessWidget {
   const CalendarScreen({super.key});

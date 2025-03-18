@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:todo_list/app/providers/todo_provider.dart';
-import 'package:todo_list/app/screens/calendar/calendar_screen.dart';
-import 'package:todo_list/app/screens/daily/dailyScreen.dart';
-import 'package:todo_list/app/screens/search/search_screen.dart';
-import 'package:todo_list/app/widgets/myDrawer.dart';
-import 'package:todo_list/app/widgets/scrollDateWidget.dart';
+import 'package:todo_list/providers/todo_providers.dart';
+import 'package:todo_list/screens/calendar/calendar_screen.dart';
+import 'package:todo_list/screens/daily/dailyScreen.dart';
+import 'package:todo_list/screens/search/search_screen.dart';
+import 'package:todo_list/widgets/myDrawer.dart';
+import 'package:todo_list/widgets/scrollDateWidget.dart';
 
 class TodoScreen extends ConsumerWidget {
   const TodoScreen({super.key});

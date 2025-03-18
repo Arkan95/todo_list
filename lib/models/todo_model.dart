@@ -1,4 +1,4 @@
-import 'package:todo_list/app/database/models/category_model.dart';
+import 'package:todo_list/models/category_model.dart';
 
 class Todo {
   final int? id;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:todo_list/app/screens/category/category_screen.dart';
-import 'package:todo_list/app/screens/todo_screen.dart';
+import 'package:todo_list/screens/category/category_screen.dart';
+import 'package:todo_list/screens/todo_screen.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(

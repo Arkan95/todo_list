@@ -114,11 +114,8 @@ class DatabaseHelper {
   //CATEGORIE
   Future<int> insertCategory(CategoryModel category) async {
     final db = await instance.database;
-    return await db.insert(
-      'category',
-      category.toJson(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    var res = await db.insert('category', category.toJson());
+    return res;
   }
 
   Future<List<CategoryModel>> getCategories() async {

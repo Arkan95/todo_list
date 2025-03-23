@@ -1,17 +1,7 @@
-// Definiamo un provider globale
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sqflite_common/sqlite_api.dart';
-import 'package:todo_list/database/database_helper.dart';
-import 'package:todo_list/models/category_model.dart';
 import 'package:todo_list/models/todo_model.dart';
-import 'package:todo_list/repositories/category_repository.dart';
+import 'package:todo_list/providers/database_providers.dart';
 import 'package:todo_list/repositories/todo_repository.dart';
-
-final indexprovider = StateProvider<int>((ref) => 0);
-
-final databaseProvider = Provider<DatabaseHelper>((ref) {
-  return DatabaseHelper.instance;
-});
 
 final todoRepositoryProvider = Provider<TodoRepository>((ref) {
   final dbHelper = ref.read(databaseProvider);
@@ -56,27 +46,3 @@ final todoListProvider = StateNotifierProvider<TodoListNotifier, List<Todo>>((
   final repository = ref.read(todoRepositoryProvider);
   return TodoListNotifier(repository);
 });
-
-class CategoryNotifier extends StateNotifier<List<CategoryModel>> {
-  final CategoryRepository repository;
-
-  CategoryNotifier(this.repository) : super([]) {
-    loadCategories();
-  }
-
-  Future<void> loadCategories() async {
-    final categories = await repository.fetchCategories();
-    state = categories;
-  }
-}
-
-final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
-  final dbHelper = ref.read(databaseProvider);
-  return CategoryRepository(dbHelper);
-});
-
-final categoryListProvider =
-    StateNotifierProvider<CategoryNotifier, List<CategoryModel>>((ref) {
-      final repository = ref.read(categoryRepositoryProvider);
-      return CategoryNotifier(repository);
-    });

@@ -12,18 +12,38 @@ class CategoriesListNotifier extends StateNotifier<List<CategoryModel>> {
   }
 
   Future<void> loadCategories() async {
-    
-    final categories = await repository.fetchCategories();
-    state = categories;
+    state = await repository.fetchCategories();
   }
 
   Future<bool> addCategory(CategoryModel category) async {
     try {
-      await repository.addCategory(category);
-      
+      int res = await repository.addCategory(category);
+      if (res != 0) {
+        loadCategories();
+        return true;
+      }
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  Future<bool> updateCategory(CategoryModel category) async {
+    if (await repository.updateCategory(category)) {
+      loadCategories();
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<(bool, String)> deleteCategory(int id) async {
+    (bool, String) res = await repository.deleteCategory(id);
+    if (res.$1) {
+      loadCategories();
+      return res;
+    } else {
+      return res;
     }
   }
 }

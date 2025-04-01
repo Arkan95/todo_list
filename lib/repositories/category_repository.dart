@@ -8,4 +8,7 @@ class CategoryRepository {
   Future<List<CategoryModel>> fetchCategories() => dbHelper.getCategories();
   Future<int> addCategory(CategoryModel category) =>
       dbHelper.insertCategory(category);
+  Future<bool> updateCategory(CategoryModel category) =>
+      dbHelper.updateCategory(category);
+  Future<(bool, String)> deleteCategory(int id) => dbHelper.deleteCategory(id);
 }

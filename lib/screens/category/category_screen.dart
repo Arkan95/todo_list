@@ -6,6 +6,7 @@ import 'package:todo_list/models/category_model.dart';
 import 'package:todo_list/providers/category_providers.dart';
 import 'package:todo_list/providers/todo_providers.dart';
 import 'package:todo_list/utils/utils.dart';
+import 'package:todo_list/widgets/dialogYesNo.dart';
 import 'package:todo_list/widgets/myDrawer.dart';
 
 class CategoryScreen extends ConsumerWidget {
@@ -146,7 +147,7 @@ class CategoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final categorie = ref.read(categoryListProvider.notifier);
+    final categorie = ref.watch(categoryListProvider);
     return Scaffold(
       appBar: AppBar(
         leading: Builder(
@@ -173,26 +174,80 @@ class CategoryScreen extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
             ),
             Expanded(
-              child: FutureBuilder(
-                future: categorie.loadCategories(),
-                builder: (context, data) {
-                  if (data.connectionState == ConnectionState.done) {
-                    return ListView.separated(
-                      separatorBuilder: (context, index) => SizedBox(height: 5),
-                      itemCount: data.data,
-                      itemBuilder: (context, index) {
-                        return Container(
-                          color: Colors.amber,
-                          height: 80,
-                          child: Text("${data.data![index].title}"),
-                          width: double.infinity,
-                        );
-                      },
-                    );
-                  }
-                  return Center(child: CircularProgressIndicator());
-                },
-              ),
+              child:
+                  categorie.isEmpty
+                      ? Container()
+                      : ListView.builder(
+                        itemCount: categorie.length,
+                        itemBuilder: (context, index) {
+                          final category = categorie[index];
+                          return Dismissible(
+                            confirmDismiss: (direction) async {
+                              bool check = await showDialog(
+                                context: context,
+                                builder: (BuildContext context) {
+                                  return DialogYesNo(
+                                    title: "Vuoi eliminare la categoria?",
+                                  );
+                                },
+                              );
+                              if (check) {
+                                (bool, String) res = await ref
+                                    .read(categoryListProvider.notifier)
+                                    .deleteCategory(category.id!);
+                                if (res.$1) {
+                                  return true;
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(res.$2)),
+                                  );
+                                  return false;
+                                }
+                              }
+                            },
+                            background: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Container(
+                                alignment: Alignment.centerRight,
+                                color: Colors.redAccent,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 12.0),
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            key: ValueKey<int>(category.id!),
+                            child: GestureDetector(
+                              onTap: () async {
+                                var res = await getCategoryFromModal(
+                                  context,
+                                  category,
+                                );
+                                if (res != null) {
+                                  await ref
+                                      .read(categoryListProvider.notifier)
+                                      .updateCategory(res);
+                                }
+                              },
+                              child: ListTile(
+                                leading: const Icon(Icons.category),
+                                title: Text(category.title!),
+                                trailing: Container(
+                                  width: 20,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(20),
+                                    color: hexToColor(category.colorHex!),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
             ),
           ],
         ),
@@ -201,10 +256,8 @@ class CategoryScreen extends ConsumerWidget {
         onPressed: () async {
           var res = await getCategoryFromModal(context, CategoryModel());
           if (res != null) {
-            final db = ref.read(categoryListProvider.notifier);
-            await db.addCategory(res);
+            await ref.read(categoryListProvider.notifier).addCategory(res);
           }
-          print(res);
         },
         child: Icon(Icons.add),
       ),

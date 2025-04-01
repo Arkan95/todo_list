@@ -126,18 +126,38 @@ class DatabaseHelper {
     });
   }
 
-  Future<void> updateCategory(CategoryModel category) async {
-    final db = await instance.database;
-    await db.update(
-      'category',
-      category.toJson(),
-      where: 'id = ?',
-      whereArgs: [category.id],
-    );
+  Future<bool> updateCategory(CategoryModel category) async {
+    try {
+      final db = await instance.database;
+      await db.update(
+        'category',
+        category.toJson(),
+        where: 'id = ?',
+        whereArgs: [category.id],
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
-  Future<void> deleteCategory(int id) async {
+  Future<(bool, String)> deleteCategory(int id) async {
     final db = await instance.database;
-    await db.delete('todos', where: 'id = ?');
+    var check = await db.query(
+      'todos',
+      columns: ['categoryId'],
+      where: 'categoryId = ?',
+      whereArgs: [id],
+    );
+    if (check.isEmpty) {
+      int res = await db.delete('category', where: 'id = ?', whereArgs: [id]);
+      if (res != 0) {
+        return (true, "Ok");
+      } else {
+        return (false, "Qualcosa è andato storto :(");
+      }
+    } else {
+      return (false, "La categoria è utilizzata, non è possibile eliminarla!");
+    }
   }
 }

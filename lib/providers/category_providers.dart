@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_list/models/category_model.dart';
 import 'package:todo_list/providers/database_providers.dart';
 import 'package:todo_list/repositories/category_repository.dart';
+import 'package:todo_list/screens/category/single_category_item.dart';
 
 class CategoriesListNotifier extends StateNotifier<List<CategoryModel>> {
   final CategoryRepository repository;
-
+  GlobalKey<AnimatedListState> animatedKey = GlobalKey();
   CategoriesListNotifier(this.repository) : super([]) {
     loadCategories();
   }
@@ -19,7 +20,15 @@ class CategoriesListNotifier extends StateNotifier<List<CategoryModel>> {
     try {
       int res = await repository.addCategory(category);
       if (res != 0) {
-        loadCategories();
+        category.id = res;
+        final updatedCategories = [...state, category]; // nuova lista
+        state = updatedCategories; // aggiorna lo stato
+        int newIndex = state.length - 1;
+        animatedKey.currentState!.insertItem(
+          newIndex,
+          duration: Duration(milliseconds: 500),
+        );
+
         return true;
       }
       return true;
@@ -38,15 +47,55 @@ class CategoriesListNotifier extends StateNotifier<List<CategoryModel>> {
   }
 
   Future<(bool, String)> deleteCategory(int id) async {
+    int index = state.indexWhere((element) => element.id == id);
+    CategoryModel deletingCategory = state.firstWhere(
+      (element) => element.id == id,
+    );
     (bool, String) res = await repository.deleteCategory(id);
     if (res.$1) {
       loadCategories();
+      animatedKey.currentState!.removeItem(
+        index,
+        (context, animation) => SingleCategoryItem(
+          index: index,
+          category: deletingCategory,
+          animation: animation,
+        ),
+      );
       return res;
     } else {
       return res;
     }
   }
 }
+
+/* class KeyAnimatedListNotifier
+    extends StateNotifier<GlobalKey<AnimatedListState>> {
+  GlobalKey<AnimatedListState> animatedKey;
+
+  KeyAnimatedListNotifier(this.animatedKey)
+    : super(GlobalKey<AnimatedListState>());
+
+  void setKey(GlobalKey<AnimatedListState> newKey) {
+    animatedKey = newKey;
+  }
+
+  void newElement(int index) {
+    animatedKey.currentState!.insertItem(index - 1);
+  }
+
+  void deleteElement(
+    int index,
+    CategoryModel category,
+    Animation<double> animation,
+  ) {
+    animatedKey.currentState!.removeItem(
+      index,
+      (context, animation) =>
+          SingleCategoryItem(category: category, animation: animation),
+    );
+  }
+} */
 
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final dbHelper = ref.read(databaseProvider);
@@ -56,6 +105,7 @@ final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
 final categoryListProvider =
     StateNotifierProvider<CategoriesListNotifier, List<CategoryModel>>((ref) {
       final repository = ref.read(categoryRepositoryProvider);
+
       return CategoriesListNotifier(repository);
     });
 

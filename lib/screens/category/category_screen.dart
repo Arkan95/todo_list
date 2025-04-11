@@ -34,8 +34,8 @@ class CategoryScreen extends ConsumerWidget {
         ),
       ),
       drawer: MyDrawer(),
-      body: Padding(
-        padding: const EdgeInsets.fromLTRB(15, 10, 15, 15),
+      body: Container(
+        margin: const EdgeInsets.fromLTRB(15, 10, 15, 15),
         child: Column(
           spacing: 10,
           crossAxisAlignment: CrossAxisAlignment.start,

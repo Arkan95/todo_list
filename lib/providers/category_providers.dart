@@ -69,34 +69,6 @@ class CategoriesListNotifier extends StateNotifier<List<CategoryModel>> {
   }
 }
 
-/* class KeyAnimatedListNotifier
-    extends StateNotifier<GlobalKey<AnimatedListState>> {
-  GlobalKey<AnimatedListState> animatedKey;
-
-  KeyAnimatedListNotifier(this.animatedKey)
-    : super(GlobalKey<AnimatedListState>());
-
-  void setKey(GlobalKey<AnimatedListState> newKey) {
-    animatedKey = newKey;
-  }
-
-  void newElement(int index) {
-    animatedKey.currentState!.insertItem(index - 1);
-  }
-
-  void deleteElement(
-    int index,
-    CategoryModel category,
-    Animation<double> animation,
-  ) {
-    animatedKey.currentState!.removeItem(
-      index,
-      (context, animation) =>
-          SingleCategoryItem(category: category, animation: animation),
-    );
-  }
-} */
-
 final categoryRepositoryProvider = Provider<CategoryRepository>((ref) {
   final dbHelper = ref.read(databaseProvider);
   return CategoryRepository(dbHelper);
@@ -129,12 +101,3 @@ final categoryProvider = StateNotifierProvider.autoDispose
     .family<CategoryNotifier, CategoryModel, CategoryModel>(
       (ref, model) => CategoryNotifier(model),
     );
-
-/* final categoryFormProvider = StateNotifierProvider
-    .autoDispose //autoDispose serve a eliminare automaticamente il provider quando non utilizzato
-    .family // Consente di passare un modello iniziale, fondamentale per l'editing di una categoria già esistente
-    <CategoryNotifier, CategoryModel, CategoryModel>((ref, initialCategory) {
-      final notifier = CategoryNotifier(initialCategory);
-      ref.keepAlive;
-      return notifier;
-    }); */

@@ -1,12 +1,12 @@
 import 'package:todo_list/models/category_model.dart';
 
 class Todo {
-  final int? id;
-  final String? title;
-  final String? description;
-  final bool? isCompleted;
-  final DateTime? date;
-  final int? categoryId;
+  int? id;
+  String? title;
+  String? description;
+  bool? isCompleted;
+  DateTime? date;
+  int? categoryId;
 
   Todo({
     this.id,

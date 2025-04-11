@@ -1,36 +1,46 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:todo_list/models/todo_model.dart';
 import 'package:todo_list/providers/database_providers.dart';
 import 'package:todo_list/repositories/todo_repository.dart';
 
-final todoRepositoryProvider = Provider<TodoRepository>((ref) {
-  final dbHelper = ref.read(databaseProvider);
-  return TodoRepository(dbHelper);
-});
-
 // Classe che estende StateNotifier per gestire la lista di Todo come stato.
 // Questo notifier si occupa di caricare, aggiungere (e in futuro aggiornare/eliminare) i Todo.
 class TodoListNotifier extends StateNotifier<List<Todo>> {
   final TodoRepository repository;
+  DateTime time;
+  GlobalKey<AnimatedListState> animatedKey = GlobalKey();
 
   // Costruttore che accetta il repository e inizializza lo stato con una lista vuota.
   // Viene invocato loadTodos() per caricare i Todo appena il notifier viene creato.
-  TodoListNotifier(this.repository) : super([]) {
+  TodoListNotifier(this.repository, this.time) : super([]) {
     loadTodos();
   }
 
   // Metodo asincrono per caricare i Todo dal repository.
   // Una volta ottenuti i Todo, lo stato viene aggiornato con la lista recuperata.
-  Future<void> loadTodos({DateTime? time}) async {
-    final todos = await repository.fetchTodos(time ?? DateTime.now());
+  Future<void> loadTodos() async {
+    final todos = await repository.fetchTodos(time);
     state = todos;
   }
 
   // Metodo asincrono per aggiungere un nuovo Todo.
   // Dopo aver aggiunto il Todo al repository, si richiama loadTodos() per aggiornare lo stato.
-  Future<void> addTodo(Todo todo) async {
-    await repository.addTodo(todo);
+  Future<bool> addTodo(Todo todo) async {
+    int res = await repository.addTodo(todo);
+    if (res != 0) {
+      todo.id = res;
+      final updateTodos = [...state, todo];
+      state = updateTodos;
+      int newIndex = state.length - 1;
+      animatedKey.currentState!.insertItem(
+        newIndex,
+        duration: Duration(milliseconds: 500),
+      );
+      return true;
+    }
     await loadTodos();
+    return true;
   }
 
   // I metodi per l'aggiornamento (update) e la cancellazione (delete) dei Todo
@@ -38,11 +48,15 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
   // e poi aggiornare lo stato ricaricando la lista.
 }
 
+final todoRepositoryProvider = Provider<TodoRepository>((ref) {
+  final dbHelper = ref.read(databaseProvider);
+  return TodoRepository(dbHelper);
+});
+
 // Provider che collega il TodoListNotifier allo stato (una lista di Todo).
 // Questo provider permette all'intera applicazione di accedere e gestire la lista dei Todo.
-final todoListProvider = StateNotifierProvider<TodoListNotifier, List<Todo>>((
-  ref,
-) {
-  final repository = ref.read(todoRepositoryProvider);
-  return TodoListNotifier(repository);
-});
+final todoListProvider = StateNotifierProvider.autoDispose
+    .family<TodoListNotifier, List<Todo>, DateTime>((ref, time) {
+      final repository = ref.read(todoRepositoryProvider);
+      return TodoListNotifier(repository, time);
+    });

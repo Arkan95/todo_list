@@ -53,6 +53,9 @@ class TodoScreen extends ConsumerWidget {
         ],
       ),
       appBar: AppBar(
+        elevation: 0, // niente ombra
+        scrolledUnderElevation: 0.0,
+        backgroundColor: Colors.amber,
         leading: Builder(
           builder: (context) {
             return IconButton(
@@ -73,7 +76,12 @@ class TodoScreen extends ConsumerWidget {
 
       floatingActionButton:
           index != 2
-              ? FloatingActionButton(onPressed: () {}, child: Icon(Icons.add))
+              ? FloatingActionButton(
+                onPressed: () {
+                  context.push('/editTodo');
+                },
+                child: Icon(Icons.add),
+              )
               : Container(),
     );
   }

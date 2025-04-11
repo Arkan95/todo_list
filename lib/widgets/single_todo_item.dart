@@ -7,11 +7,11 @@ import 'package:todo_list/utils/utils.dart';
 import 'package:todo_list/widgets/bottomSheet.dart';
 import 'package:todo_list/widgets/dialogYesNo.dart';
 
-class SingleCategoryItem extends ConsumerWidget {
+class SingleTodoItem extends ConsumerWidget {
   CategoryModel category;
   Animation<double> animation;
   int index;
-  SingleCategoryItem({
+  SingleTodoItem({
     super.key,
     required this.category,
     required this.animation,
@@ -42,18 +42,6 @@ class SingleCategoryItem extends ConsumerWidget {
         axis: Axis.vertical,
         child: SizedBox(
           height: 70,
-          /* decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.5),
-                spreadRadius: 1,
-                blurRadius: 5,
-                offset: Offset(0, 2), // changes position of shadow
-              ),
-            ],
-          ), */
           child: GestureDetector(
             onTap: () async {
               GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -73,7 +61,7 @@ class SingleCategoryItem extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: hexToColor(category.colorHex!),
-                      width: 3,
+                      width: 2,
                     ),
                   ),
                 ),
@@ -110,14 +98,6 @@ class SingleCategoryItem extends ConsumerWidget {
           ),
         ),
       ),
-    ); /* 
-        .animate() // flutter_animate
-        .slideY(
-          begin: index * 0.3,
-          end: 0,
-          duration: 750.ms,
-          curve: Curves.fastOutSlowIn,
-        )
-        .fade(duration: 750.ms, curve: Curves.fastOutSlowIn); */
+    );
   }
 }

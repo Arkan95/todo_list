@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_list/providers/app_routes.dart';
 
-class MyDrawer extends StatelessWidget {
+class MyDrawer extends ConsumerWidget {
   const MyDrawer({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -18,7 +20,12 @@ class MyDrawer extends StatelessWidget {
             leading: Icon(Icons.menu),
             title: const Text('Menu principale'),
             onTap: () {
-              context.go('/');
+              if (context.canPop()) {
+                context.pop();
+              } else {
+                context.go('/');
+              }
+
               Scaffold.of(context).closeDrawer();
             },
           ),
@@ -26,7 +33,8 @@ class MyDrawer extends StatelessWidget {
             leading: Icon(Icons.category),
             title: const Text('Categorie'),
             onTap: () {
-              context.go('/category');
+              context.push('/category');
+              //context.go('/category');
               Scaffold.of(context).closeDrawer();
             },
           ),

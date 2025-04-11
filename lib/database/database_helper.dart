@@ -3,6 +3,7 @@ import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 import 'package:todo_list/models/category_model.dart';
 import 'package:todo_list/models/todo_model.dart';
+import 'package:todo_list/utils/utils.dart';
 
 // Classe helper per la gestione del database
 class DatabaseHelper {
@@ -89,7 +90,7 @@ class DatabaseHelper {
     final result = await db.query(
       'todos',
       where: 'DATE(dateTodo) = ?',
-      whereArgs: [time],
+      whereArgs: [formatterSql.format(time)],
     );
     // Converte il risultato (lista di mappe) in una lista di oggetti Todo
     return result.map((json) => Todo.fromJson(json)).toList();

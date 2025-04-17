@@ -54,7 +54,6 @@ class DatabaseHelper {
     CREATE TABLE todos (
       id INTEGER PRIMARY KEY AUTOINCREMENT, 
       title TEXT NOT NULL,
-      description TEXT NOT NULL,
       isCompleted INTEGER NOT NULL,
       dateTodo DATETIME NOT NULL,
       categoryId INTEGER NOT NULL,

@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_list/models/todo_model.dart';
 import 'package:todo_list/screens/category/category_screen.dart';
 import 'package:todo_list/screens/todo_screen.dart';
 import 'package:todo_list/widgets/editTodo.dart';
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
+    initialLocation: "/",
     routes: [
-      GoRoute(
-        path: '/',
-        pageBuilder:
-            (context, state) => pageAnimation(TodoScreen(), state.pageKey),
-      ),
+      GoRoute(path: '/', builder: (context, state) => TodoScreen()),
       GoRoute(path: '/profile', builder: (context, state) => Container()),
       GoRoute(
         path: '/category',
@@ -21,9 +19,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/editTodo',
+
         pageBuilder:
-            (context, state) =>
-                pageAnimation(EditTodo(), state.pageKey, isDy: true),
+            (context, state) => pageAnimation(
+              EditTodo(todo: state.extra as Todo),
+              state.pageKey,
+              isDy: true,
+            ),
       ),
     ],
   );

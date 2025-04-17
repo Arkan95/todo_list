@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:todo_list/models/todo_model.dart';
 import 'package:todo_list/providers/database_providers.dart';
 import 'package:todo_list/providers/todo_providers.dart';
 import 'package:todo_list/screens/calendar/calendar_screen.dart';
@@ -77,8 +78,8 @@ class TodoScreen extends ConsumerWidget {
       floatingActionButton:
           index != 2
               ? FloatingActionButton(
-                onPressed: () {
-                  context.push('/editTodo');
+                onPressed: () async {
+                  var res = await context.push('/editTodo', extra: Todo());
                 },
                 child: Icon(Icons.add),
               )

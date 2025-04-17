@@ -4,7 +4,9 @@ import 'package:intl/intl.dart';
 
 DateFormat formatterSql = DateFormat('yyyy-mm-dd');
 
-DateFormat formatter = DateFormat('dd/mm/yyyy');
+DateFormat formatterDate = DateFormat('dd/mm/yyyy');
+
+DateFormat formatter = DateFormat('dd/MM/yyyy HH:mm');
 
 Color hexToColor(String hex) {
   hex = hex.replaceAll('#', '');

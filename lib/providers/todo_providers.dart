@@ -48,10 +48,42 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
   // e poi aggiornare lo stato ricaricando la lista.
 }
 
+class TodoNotifier extends StateNotifier<Todo> {
+  TodoNotifier(Todo todo) : super(todo);
+
+  void setDescription(String desc) {
+    var temp = state.copyWith(description: desc);
+    state = temp;
+  }
+
+  void setTitle(String title) {
+    var temp = state.copyWith(title: title);
+    state = temp;
+  }
+
+  void setIsCompleted(bool iscompleted) {
+    var temp = state.copyWith(isCompleted: iscompleted);
+    state = temp;
+  }
+
+  void setDate(DateTime date) {
+    var temp = state.copyWith(date: date);
+    state = temp;
+  }
+
+  void setCategory(int category) {
+    var temp = state.copyWith(categoryId: category);
+    state = temp;
+  }
+}
+
 final todoRepositoryProvider = Provider<TodoRepository>((ref) {
   final dbHelper = ref.read(databaseProvider);
   return TodoRepository(dbHelper);
 });
+
+final todoProvider = StateNotifierProvider.autoDispose
+    .family<TodoNotifier, Todo, Todo>((ref, model) => TodoNotifier(model));
 
 // Provider che collega il TodoListNotifier allo stato (una lista di Todo).
 // Questo provider permette all'intera applicazione di accedere e gestire la lista dei Todo.

@@ -15,6 +15,7 @@ class EditTodo extends ConsumerWidget {
   late TodoNotifier refNotifier;
   late Todo refState;
   late BuildContext ctx;
+
   Widget buildBody() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -26,15 +27,16 @@ class EditTodo extends ConsumerWidget {
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             errorBorder: InputBorder.none,
+            counterText: "",
             disabledBorder: InputBorder.none,
             hintText: 'Scrivi qui la tua task',
             hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
           ),
           onChanged: (value) {
-            //formNotifier.setTitle(value);
             refNotifier.setTitle(value);
           },
           maxLength: 50,
+
           initialValue: todo.title,
           validator: (value) {
             if (value == null ||
@@ -48,6 +50,7 @@ class EditTodo extends ConsumerWidget {
         ),
         Row(
           spacing: 5,
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             buildDatePicker(),
             Expanded(child: buildDropDownCategory()),
@@ -84,16 +87,48 @@ class EditTodo extends ConsumerWidget {
   Widget buildDropDownCategory() {
     return Consumer(
       builder: (context, WidgetRef ref, child) {
-        var list = ref.watch(categoryListProvider).map((e) => e.title).toList();
-        return CustomDropdown<String?>(
-          hintText: 'Select job role',
-          decoration: CustomDropdownDecoration(
-            closedBorderRadius: BorderRadius.circular(30),
-            closedBorder: Border.all(width: 3, color: hexToColor("#F4F6FA")),
-          ),
-          items: list,
-          initialItem: list[0],
-          onChanged: (value) {},
+        //var list = ref.watch(categoryListProvider).map((e) => e.title).toList();
+        var list = ref.watch(categoriesFutureProvider);
+        return list.when(
+          loading: () => Center(child: const CircularProgressIndicator()),
+          error: (err, stack) => Text('Error: $err'),
+          data:
+              (categories) => CustomDropdown<String?>(
+                hintText: 'Categoria',
+                validator: (value) {
+                  if (value == null) {
+                    return "Seleziona una categoria";
+                  }
+                  return null;
+                },
+
+                decoration: CustomDropdownDecoration(
+                  closedBorderRadius: BorderRadius.circular(30),
+                  closedErrorBorderRadius: BorderRadius.circular(30),
+                  closedBorder: Border.all(
+                    width: 3,
+                    color: hexToColor("#F4F6FA"),
+                  ),
+                ),
+                items: categories.map((e) => e.title).toList(),
+                initialItem:
+                    categories
+                        .firstWhere(
+                          (element) => element.id == todo.categoryId,
+                          orElse: () => categories.first,
+                        )
+                        .title,
+                onChanged: (value) {
+                  refNotifier.setCategory(
+                    categories
+                        .firstWhere(
+                          (el) => el.title == value,
+                          orElse: () => CategoryModel(),
+                        )
+                        .id!,
+                  );
+                },
+              ),
         );
       },
     );
@@ -172,7 +207,14 @@ class EditTodo extends ConsumerWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ElevatedButton(onPressed: () {}, child: Text("Salva")),
+                    ElevatedButton(
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          ctx.pop(refState);
+                        }
+                      },
+                      child: Text("Salva"),
+                    ),
                   ],
                 ),
               ],

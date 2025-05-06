@@ -11,4 +11,6 @@ class TodoRepository {
 
   Future<List<Todo>> fetchTodos(DateTime time) => dbHelper.getTodos(time);
   Future<int> addTodo(Todo todo) => dbHelper.insertTodo(todo);
+  Future<bool> updateTodo(Todo todo) => dbHelper.updateTodo(todo);
+  Future<bool> deleteTodo(int id) => dbHelper.deleteTodo(id);
 }

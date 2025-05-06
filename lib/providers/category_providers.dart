@@ -16,6 +16,11 @@ class CategoriesListNotifier extends StateNotifier<List<CategoryModel>> {
     state = await repository.fetchCategories();
   }
 
+  Future<List<CategoryModel>> getCategories() async {
+    await loadCategories();
+    return state;
+  }
+
   Future<bool> addCategory(CategoryModel category) async {
     try {
       int res = await repository.addCategory(category);
@@ -79,6 +84,14 @@ final categoryListProvider =
       final repository = ref.read(categoryRepositoryProvider);
 
       return CategoriesListNotifier(repository);
+    });
+
+final categoriesFutureProvider =
+    FutureProvider.autoDispose<List<CategoryModel>>((ref) async {
+      // get repository from the provider below
+      final categoriesRepository = ref.watch(categoryListProvider.notifier);
+      // call method that returns a Future<Weather>
+      return await categoriesRepository.getCategories();
     });
 
 //***************/

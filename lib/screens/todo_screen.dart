@@ -11,8 +11,7 @@ import 'package:todo_list/widgets/myDrawer.dart';
 import 'package:todo_list/widgets/scrollDateWidget.dart';
 
 class TodoScreen extends ConsumerWidget {
-  const TodoScreen({super.key});
-
+  TodoScreen({super.key});
   Widget getScreen(int index) {
     switch (index) {
       case 0:
@@ -33,6 +32,7 @@ class TodoScreen extends ConsumerWidget {
       bottomNavigationBar: NavigationBar(
         onDestinationSelected: (int value) {
           ref.read(indexprovider.notifier).state = value;
+          ref.invalidate(todoListProvider);
         },
         selectedIndex: index,
         destinations: const <Widget>[
@@ -74,16 +74,6 @@ class TodoScreen extends ConsumerWidget {
         padding: const EdgeInsets.fromLTRB(15, 10, 15, 15),
         child: getScreen(index),
       ),
-
-      floatingActionButton:
-          index != 2
-              ? FloatingActionButton(
-                onPressed: () async {
-                  var res = await context.push('/editTodo', extra: Todo());
-                },
-                child: Icon(Icons.add),
-              )
-              : Container(),
     );
   }
 }

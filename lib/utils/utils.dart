@@ -2,7 +2,7 @@ import 'dart:ui';
 
 import 'package:intl/intl.dart';
 
-DateFormat formatterSql = DateFormat('yyyy-mm-dd');
+DateFormat formatterSql = DateFormat('yyyy-MM-dd');
 
 DateFormat formatterDate = DateFormat('dd/mm/yyyy');
 

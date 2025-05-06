@@ -78,7 +78,8 @@ class DatabaseHelper {
     // Ottiene l'istanza del database
     final db = await instance.database;
     // Inserisce il Todo (convertito in mappa) nella tabella "todos" e restituisce l'id del record inserito
-    return await db.insert('todos', todo.toJson());
+    var res = await db.insert('todos', todo.toJson());
+    return res;
   }
 
   // Funzione per ottenere la lista di tutti i Todo presenti nel database
@@ -86,29 +87,41 @@ class DatabaseHelper {
     // Ottiene l'istanza del database
     final db = await instance.database;
     // Esegue una query sulla tabella "todos" per ottenere tutti i record
+    String timeString = formatterSql.format(time);
     final result = await db.query(
       'todos',
       where: 'DATE(dateTodo) = ?',
-      whereArgs: [formatterSql.format(time)],
+      whereArgs: [timeString],
     );
     // Converte il risultato (lista di mappe) in una lista di oggetti Todo
-    return result.map((json) => Todo.fromJson(json)).toList();
+    List<Todo> res = result.map((json) => Todo.fromJson(json)).toList();
+    return res;
   }
 
   // Puoi aggiungere metodi per update e delete per completare le operazioni CRUD
-  Future<void> updateTodo(Todo todo) async {
-    final db = await instance.database;
-    await db.update(
-      'todos',
-      todo.toJson(),
-      where: 'id = ?',
-      whereArgs: [todo.id],
-    );
+  Future<bool> updateTodo(Todo todo) async {
+    try {
+      final db = await instance.database;
+      await db.update(
+        'todos',
+        todo.toJson(),
+        where: 'id = ?',
+        whereArgs: [todo.id],
+      );
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
-  Future<void> deleteTodo(int id) async {
-    final db = await instance.database;
-    await db.delete('todos', where: 'id = ?', whereArgs: [id]);
+  Future<bool> deleteTodo(int id) async {
+    try {
+      final db = await instance.database;
+      await db.delete('todos', where: 'id = ?', whereArgs: [id]);
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   //CATEGORIE

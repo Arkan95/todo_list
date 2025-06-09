@@ -28,14 +28,50 @@ class SingleTodoItem extends ConsumerStatefulWidget {
     this.deleting,
   });
 
+  @override
+  ConsumerState<SingleTodoItem> createState() => _SingleTodoItemState();
+}
+
+class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.9,
+    ).chain(CurveTween(curve: Curves.easeOut)).animate(_controller);
+  }
+
+  void _onTap() {
+    _controller.forward().then((_) {
+      _controller.reverse();
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   Widget buildDelete(WidgetRef ref) {
     return GestureDetector(
       onTap: () async {
         List<dynamic> deletingTodo = await ref
-            .read(todoListProvider(time).notifier)
-            .deleteTodo(todo.id!);
+            .read(todoListProvider(widget.time).notifier)
+            .deleteTodo(widget.todo.id!);
         if (deletingTodo.isNotEmpty) {
-          deleting!(deletingTodo);
+          widget.deleting!(deletingTodo);
         }
       },
       child: const Icon(Icons.close, color: Colors.redAccent),
@@ -53,32 +89,29 @@ class SingleTodoItem extends ConsumerStatefulWidget {
   }
 
   Widget buildLeading(WidgetRef ref) {
-    return GestureDetector(
-      onTap: () async {
-        todo.isCompleted = !(todo.isCompleted!);
-        ref.watch(bounceButtonProvider.notifier).toggleBounce();
-
-        await ref.read(todoListProvider(time).notifier).updateTodo(todo);
-      },
-      child: Container(
-        width: 30,
-        height: 30,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.black, width: 2),
-        ),
+    return Container(
+      width: 25,
+      height: 25,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.black, width: 2),
       ),
     );
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isBouncing = ref.watch(bounceButtonProvider);
-    return SafeArea(
-      child: AnimatedScale(
-        scale: isBouncing ? 1.2 : 1.0,
-        duration: Duration(milliseconds: 150),
-        curve: Curves.elasticOut, // Effetto elastico per il rimbalzo
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: GestureDetector(
+        onTap: () async {
+          widget.todo.isCompleted = !(widget.todo.isCompleted!);
+
+          await ref
+              .read(todoListProvider(widget.time).notifier)
+              .updateTodo(widget.todo);
+          _onTap();
+        },
         child: Container(
           margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
           decoration: BoxDecoration(
@@ -95,28 +128,28 @@ class SingleTodoItem extends ConsumerStatefulWidget {
           ),
           child: SizeTransition(
             sizeFactor: CurvedAnimation(
-              parent: animation,
+              parent: widget.animation,
               curve: Curves.fastOutSlowIn,
             ),
             axis: Axis.vertical,
             child: SizedBox(
               height: 70,
               child: GestureDetector(
-                onTap: () async {
+                onLongPress: () async {
                   var res = await context.push(
                     '/editTodo',
-                    extra: ref.watch(todoProvider(todo)),
+                    extra: ref.watch(todoProvider(widget.todo)),
                   );
                   if (res != null) {
                     final added = await ref
-                        .read(todoListProvider(time).notifier)
+                        .read(todoListProvider(widget.time).notifier)
                         .updateTodo(res as Todo);
                   }
                 },
                 child: Center(
                   child: ListTile(
                     leading: buildLeading(ref),
-                    title: buildTitle(ref, todo),
+                    title: buildTitle(ref, widget.todo),
                     trailing: buildDelete(ref),
                   ),
                 ),

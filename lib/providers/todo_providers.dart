@@ -96,6 +96,8 @@ class TodoNotifier extends StateNotifier<Todo> {
   }
 }
 
+final bounceTriggerProvider = StateProvider<bool>((ref) => false);
+
 final todoRepositoryProvider = Provider<TodoRepository>((ref) {
   final dbHelper = ref.read(databaseProvider);
   return TodoRepository(dbHelper);

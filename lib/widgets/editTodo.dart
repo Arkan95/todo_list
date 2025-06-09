@@ -16,7 +16,7 @@ class EditTodo extends ConsumerWidget {
   late Todo refState;
   late BuildContext ctx;
 
-  Widget buildBody() {
+  Widget buildBody(WidgetRef ref) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: 5,
@@ -86,9 +86,8 @@ class EditTodo extends ConsumerWidget {
 
   Widget buildDropDownCategory() {
     return Consumer(
-      builder: (context, WidgetRef ref, child) {
-        //var list = ref.watch(categoryListProvider).map((e) => e.title).toList();
-        var list = ref.watch(categoriesFutureProvider);
+      builder: (context, ref, child) {
+        var list = ref.read(categoriesFutureProvider);
         return list.when(
           loading: () => Center(child: const CircularProgressIndicator()),
           error: (err, stack) => Text('Error: $err'),
@@ -112,12 +111,14 @@ class EditTodo extends ConsumerWidget {
                 ),
                 items: categories.map((e) => e.title).toList(),
                 initialItem:
-                    categories
-                        .firstWhere(
-                          (element) => element.id == todo.categoryId,
-                          orElse: () => categories.first,
-                        )
-                        .title,
+                    todo.categoryId != 0
+                        ? categories
+                            .firstWhere(
+                              (element) => element.id == todo.categoryId,
+                              orElse: () => categories.first,
+                            )
+                            .title
+                        : null,
                 onChanged: (value) {
                   refNotifier.setCategory(
                     categories
@@ -203,7 +204,7 @@ class EditTodo extends ConsumerWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [buildExit()],
                 ),
-                Expanded(child: buildBody()),
+                Expanded(child: buildBody(ref)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [

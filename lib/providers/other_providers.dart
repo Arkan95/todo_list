@@ -7,9 +7,3 @@ class BounceButtonNotifier extends StateNotifier<bool> {
     state = !state;
   }
 }
-
-final bounceButtonProvider = StateNotifierProvider<BounceButtonNotifier, bool>((
-  ref,
-) {
-  return BounceButtonNotifier();
-});

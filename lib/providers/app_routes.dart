@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:todo_list/models/todo_model.dart';
+import 'package:todo_list/providers/category_providers.dart';
 import 'package:todo_list/screens/category/category_screen.dart';
 import 'package:todo_list/screens/todo_screen.dart';
 import 'package:todo_list/widgets/editTodo.dart';
@@ -10,7 +11,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: "/",
     routes: [
-      GoRoute(path: '/', builder: (context, state) => TodoScreen()),
+      GoRoute(
+        path: '/',
+        builder: (context, state) {
+          ref.invalidate(categoriesFutureProvider);
+          return TodoScreen();
+        },
+      ),
       GoRoute(path: '/profile', builder: (context, state) => Container()),
       GoRoute(
         path: '/category',

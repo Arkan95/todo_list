@@ -8,7 +8,7 @@ class MyDrawer extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    var route = ref.read(appRouterProvider);
+    var route = ref.watch(appRouterProvider);
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,

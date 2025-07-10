@@ -18,7 +18,7 @@ class SingleTodoItem extends ConsumerStatefulWidget {
   Animation<double> animation;
   int index;
   DateTime time;
-  void Function(List<dynamic>)? deleting;
+  void Function(List<dynamic>,int index)? deleting;
   SingleTodoItem({
     super.key,
     required this.todo,
@@ -64,6 +64,10 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
     super.dispose();
   }
 
+  late ProviderContainer container;
+
+
+
   Widget buildDelete(WidgetRef ref) {
     return GestureDetector(
       onTap: () async {
@@ -71,7 +75,7 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
             .read(todoListProvider(widget.time).notifier)
             .deleteTodo(widget.todo.id!);
         if (deletingTodo.isNotEmpty) {
-          widget.deleting!(deletingTodo);
+          widget.deleting!(deletingTodo,widget.index);
         }
       },
       child: const Icon(Icons.close, color: Colors.redAccent),
@@ -150,7 +154,15 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
                   child: ListTile(
                     leading: buildLeading(ref),
                     title: buildTitle(ref, widget.todo),
-                    trailing: buildDelete(ref),
+                    
+                    trailing: Row(
+                      spacing: 15,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(formatterTime.format(widget.todo.date!),style: TextStyle(fontSize: 14),),
+                        buildDelete(ref),
+                      ],
+                    ),
                   ),
                 ),
               ),

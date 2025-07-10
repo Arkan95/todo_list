@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,17 +7,32 @@ import 'package:go_router/go_router.dart';
 import 'package:todo_list/models/todo_model.dart';
 import 'package:todo_list/providers/category_providers.dart';
 import 'package:todo_list/providers/todo_providers.dart';
+import 'package:todo_list/utils/utils.dart';
 import 'package:todo_list/widgets/categoryTasksProgress.dart';
 import 'package:todo_list/widgets/single_todo_item.dart';
 
 final selectedDate = DateTime.now();
 GlobalKey<AnimatedListState> animatedKey = GlobalKey();
 
-class DailyScreen extends ConsumerWidget {
+class DailyScreen extends ConsumerStatefulWidget {
   DailyScreen({super.key});
+
+  @override
+  ConsumerState<DailyScreen> createState() => _DailyScreenState();
+}
+
+class _DailyScreenState extends ConsumerState<DailyScreen> {
+  ScaffoldMessengerState? _scaffoldMessenger;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _scaffoldMessenger = ScaffoldMessenger.of(context);
+  }
+
   Widget buildTaskList(List<Todo> todos) {
     return todos.isEmpty
-        ? Container()
+        ? Container(child: Text("Nessun Task da fare"),)
         : AnimatedList.separated(
               separatorBuilder:
                   (context, index, animation) => SizedBox(height: 5),
@@ -29,7 +46,7 @@ class DailyScreen extends ConsumerWidget {
                   animation: animation,
                   index: index,
                   time: selectedDate,
-                  deleting: (values) {
+                  deleting: (values,index) async {
                     animatedKey.currentState!.removeItem(
                       index,
                       (context, animation) => SingleTodoItem(
@@ -39,6 +56,8 @@ class DailyScreen extends ConsumerWidget {
                         time: selectedDate,
                       ),
                     );
+                      // Mostra SnackBar nel contesto principale (valido)
+                    showUndoSnackbar(context, values[1] as Todo, selectedDate,index);
                   },
                 );
               },
@@ -51,6 +70,54 @@ class DailyScreen extends ConsumerWidget {
               curve: Curves.fastOutSlowIn,
             )
             .fade(duration: 750.ms, curve: Curves.fastOutSlowIn);
+  }
+
+  void showUndoSnackbar(BuildContext context, Todo todo, DateTime time, int index) async {
+    final container = ProviderScope.containerOf(context);
+    _scaffoldMessenger?.clearSnackBars();
+    _scaffoldMessenger?.showSnackBar(
+      SnackBar(
+        duration: Duration(seconds: 5),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        content: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(color: hexToColor('#F4F6FA')),
+            borderRadius: BorderRadius.circular(15),
+            boxShadow: const [
+              BoxShadow(
+                color: Color(0x19000000),
+                spreadRadius: 2,
+                blurRadius: 8,
+                offset: Offset(2, 4),
+              )
+            ],
+          ),
+          child: Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  'Task eliminato',
+                  style: TextStyle(color: Colors.green),
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  await container
+                      .read(todoListProvider(time).notifier)
+                      .addTodo(todo, isUndo: index);
+                  animatedKey.currentState?.insertItem(index);
+                  _scaffoldMessenger?.hideCurrentSnackBar();
+                },
+                child: const Text('Annulla'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   Widget buildCategories(List<Todo> todos) {
@@ -88,7 +155,7 @@ class DailyScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final todos = ref.watch(todoListProvider(selectedDate));
     return Scaffold(
       body: Column(

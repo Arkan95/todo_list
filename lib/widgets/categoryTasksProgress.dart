@@ -23,6 +23,16 @@ class CategoryTasksProgress extends ConsumerWidget {
     return result;
   }
 
+  String formatDouble(double value) {
+    if (value == value.roundToDouble()) {
+      return value.toStringAsFixed(0);
+    } else if ((value * 10).roundToDouble() == value * 10) {
+      return value.toStringAsFixed(1);
+    } else {
+      return value.toStringAsFixed(2);
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
@@ -71,8 +81,8 @@ class CategoryTasksProgress extends ConsumerWidget {
                   animation: true,
                   percent: getPercentual(),
                   center: Text(
-                    "${getPercentual() * 100}%",
-                    style: new TextStyle(
+                    "${formatDouble(getPercentual() * 100)}%",
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 14.0,
                     ),

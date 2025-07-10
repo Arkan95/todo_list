@@ -92,6 +92,7 @@ class DatabaseHelper {
       'todos',
       where: 'DATE(dateTodo) = ?',
       whereArgs: [timeString],
+      orderBy: 'dateTodo ASC'
     );
     // Converte il risultato (lista di mappe) in una lista di oggetti Todo
     List<Todo> res = result.map((json) => Todo.fromJson(json)).toList();

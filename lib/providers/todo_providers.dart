@@ -9,7 +9,6 @@ import 'package:todo_list/repositories/todo_repository.dart';
 class TodoListNotifier extends StateNotifier<List<Todo>> {
   final TodoRepository repository;
   DateTime time;
-  //GlobalKey<AnimatedListState> animatedKey = GlobalKey();
 
   // Costruttore che accetta il repository e inizializza lo stato con una lista vuota.
   // Viene invocato loadTodos() per caricare i Todo appena il notifier viene creato.
@@ -30,13 +29,21 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
 
   // Metodo asincrono per aggiungere un nuovo Todo.
   // Dopo aver aggiunto il Todo al repository, si richiama loadTodos() per aggiornare lo stato.
-  Future<bool> addTodo(Todo todo) async {
+  Future<bool> addTodo(Todo todo, {int? isUndo}) async {
     try {
       int res = await repository.addTodo(todo);
       if (res != 0) {
         todo.id = res;
-        final updateTodos = [...state, todo];
-        state = updateTodos;
+        if (isUndo != null) {
+          var todos = [...state];
+          todos.insert(isUndo, todo);
+          state = todos;
+        } else {
+          //updateTodos.sort((a,b)=>a.date!.compareTo(b.date!));
+          final updateTodos = [...state, todo];
+          state = updateTodos;
+        }
+
         return true;
       }
       return true;
@@ -116,3 +123,7 @@ final todoListProvider =
       final repository = ref.read(todoRepositoryProvider);
       return TodoListNotifier(repository, time);
     });
+
+final selectedDateProvider = StateProvider<DateTime>((ref) {
+  return DateTime.now();
+});

@@ -18,13 +18,15 @@ class SingleTodoItem extends ConsumerStatefulWidget {
   Animation<double> animation;
   int index;
   DateTime time;
-  void Function(List<dynamic>,int index)? deleting;
+  bool? searchMode;
+  void Function(List<dynamic>, int index)? deleting;
   SingleTodoItem({
     super.key,
     required this.todo,
     required this.animation,
     required this.index,
     required this.time,
+    this.searchMode,
     this.deleting,
   });
 
@@ -66,8 +68,6 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
 
   late ProviderContainer container;
 
-
-
   Widget buildDelete(WidgetRef ref) {
     return GestureDetector(
       onTap: () async {
@@ -75,7 +75,7 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
             .read(todoListProvider(widget.time).notifier)
             .deleteTodo(widget.todo.id!);
         if (deletingTodo.isNotEmpty) {
-          widget.deleting!(deletingTodo,widget.index);
+          widget.deleting!(deletingTodo, widget.index);
         }
       },
       child: const Icon(Icons.close, color: Colors.redAccent),
@@ -109,12 +109,14 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
       scale: _scaleAnimation,
       child: GestureDetector(
         onTap: () async {
-          widget.todo.isCompleted = !(widget.todo.isCompleted!);
+          if (!(widget.searchMode ?? false)) {
+            widget.todo.isCompleted = !(widget.todo.isCompleted!);
 
-          await ref
-              .read(todoListProvider(widget.time).notifier)
-              .updateTodo(widget.todo);
-          _onTap();
+            await ref
+                .read(todoListProvider(widget.time).notifier)
+                .updateTodo(widget.todo);
+            _onTap();
+          }
         },
         child: Container(
           margin: const EdgeInsets.fromLTRB(5, 0, 5, 0),
@@ -154,13 +156,17 @@ class _SingleTodoItemState extends ConsumerState<SingleTodoItem>
                   child: ListTile(
                     leading: buildLeading(ref),
                     title: buildTitle(ref, widget.todo),
-                    
                     trailing: Row(
                       spacing: 15,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(formatterTime.format(widget.todo.date!),style: TextStyle(fontSize: 14),),
-                        buildDelete(ref),
+                        Text(
+                          (!(widget.searchMode ?? false))
+                              ? formatterTime.format(widget.todo.date!)
+                              : formatter.format(widget.todo.date!),
+                          style: TextStyle(fontSize: 14),
+                        ),
+                        if (!(widget.searchMode ?? false)) buildDelete(ref),
                       ],
                     ),
                   ),

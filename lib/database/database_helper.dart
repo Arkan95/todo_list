@@ -92,7 +92,26 @@ class DatabaseHelper {
       'todos',
       where: 'DATE(dateTodo) = ?',
       whereArgs: [timeString],
-      orderBy: 'dateTodo ASC'
+      orderBy: 'dateTodo ASC',
+    );
+    // Converte il risultato (lista di mappe) in una lista di oggetti Todo
+    List<Todo> res = result.map((json) => Todo.fromJson(json)).toList();
+    return res;
+  }
+
+  // Funzione per ottenere la lista di tutti i Todo presenti nel database
+  Future<List<Todo>> getTodosFromSearch(String search) async {
+    if (search.isEmpty) {
+      return [];
+    }
+    // Ottiene l'istanza del database
+    final db = await instance.database;
+
+    final result = await db.query(
+      'todos',
+      where: "title LIKE ?",
+      whereArgs: ['%$search%'],
+      orderBy: 'dateTodo ASC',
     );
     // Converte il risultato (lista di mappe) in una lista di oggetti Todo
     List<Todo> res = result.map((json) => Todo.fromJson(json)).toList();

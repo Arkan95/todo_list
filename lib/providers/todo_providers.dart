@@ -27,6 +27,16 @@ class TodoListNotifier extends StateNotifier<List<Todo>> {
     return state;
   }
 
+  /* Future<List<Todo>> getTodosFromSearch(String search) async {
+    if (search.isEmpty) {
+      state = [];
+      return state;
+    } else {
+      state = await repository.fetchTodosFromSearch(search);
+      return state;
+    }
+  } */
+
   // Metodo asincrono per aggiungere un nuovo Todo.
   // Dopo aver aggiunto il Todo al repository, si richiama loadTodos() per aggiornare lo stato.
   Future<bool> addTodo(Todo todo, {int? isUndo}) async {
@@ -124,6 +134,26 @@ final todoListProvider =
       return TodoListNotifier(repository, time);
     });
 
+final todoListFutureProvider = FutureProvider.autoDispose
+    .family<List<Todo>, String>((ref, search) async {
+      // get repository from the provider below
+      final repository = ref.read(todoRepositoryProvider);
+
+      return await repository.fetchTodosFromSearch(search);
+    });
+
+final todoListFutureForNotificationProvider = FutureProvider.autoDispose
+    .family<List<Todo>, DateTime>((ref, time) async {
+      // get repository from the provider below
+      final repository = ref.read(todoRepositoryProvider);
+
+      return await repository.fetchTodos(time);
+    });
+
 final selectedDateProvider = StateProvider<DateTime>((ref) {
   return DateTime.now();
+});
+
+final searchProvider = StateProvider<String>((ref) {
+  return "";
 });
